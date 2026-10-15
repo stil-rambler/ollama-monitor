@@ -10,8 +10,11 @@
 - Оригинальный Ollama: `http://localhost:11434`
 
 ---
-
+Для того что бы мониторинг работал обязательно надо пользоваться прокси то есть в настройках точки входа надо указывать http://127.0.0.1:8881/v1 а не http://localhost:11434/v1. Иначе работать не чего не будет да и откуда она возмет информацию о скорости работы. 
 ## Возможности
+<img width="1878" height="1040" alt="image" src="https://github.com/user-attachments/assets/d7847639-ce73-4eb1-a33e-108b309696dd" />
+<img width="1869" height="1033" alt="image" src="https://github.com/user-attachments/assets/e63cd1ae-55a6-474f-91e7-ce471f3b69de" />
+<img width="1911" height="1043" alt="image" src="https://github.com/user-attachments/assets/df9239ff-dbc0-4861-8da3-99d2becb9e34" />
 
 ### Мониторинг запросов
 Для каждого запроса через прокси собираются: дата/время, модель, IP и имя клиента, endpoint, HTTP-статус, длительность, время загрузки модели, входные/выходные токены, скорость обработки контекста и генерации, время до первого байта, ошибки. Неизвестные показатели не подменяются фиктивными значениями.
@@ -76,3 +79,24 @@ tests/                      # Автотесты (pytest)
 ## Лицензия
 
 MIT
+
+Copyright (c) 2026 <Ollama Monitor>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
