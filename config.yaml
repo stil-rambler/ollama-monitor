@@ -1,0 +1,38 @@
+# Ollama Monitor configuration
+# All values can be overridden with environment variables OLLAMA_MONITOR_*
+
+server:
+  host: "127.0.0.1"
+  port: 8881
+
+ollama:
+  base_url: "http://127.0.0.1:11434"
+  timeout: 600
+
+monitoring:
+  passive_enabled: true
+  proxy_enabled: true
+  gpu_interval: 1
+  ollama_interval: 5
+
+database:
+  path: "data/ollama_monitor.db"
+
+retention:
+  requests_days: 90
+  gpu_raw_hours: 24
+  gpu_aggregated_days: 30
+
+logging:
+  level: "INFO"
+  save_request_body: false
+  save_response_body: false
+
+security:
+  # Optional token required when the UI/API is exposed beyond localhost.
+  # Leave empty for local-only usage.
+  auth_token: ""
+
+ui:
+  language: "ru"
+  theme: "dark"

@@ -1,0 +1,1 @@
+"""Ollama Monitor application package."""

@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Database & runtime data
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Logs
+logs/
+*.log
+
+# Tests / caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local secrets / env
+.env
+*.local
+
+tests/_debug/
+

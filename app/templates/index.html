@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ollama Monitor</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">⚙</span>
+    <span class="title">OLLAMA MONITOR</span>
+  </div>
+  <div class="status-pill" id="ollama-status">Проверка…</div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-page="dashboard">Dashboard</button>
+  <button class="tab" data-page="requests">Requests</button>
+  <button class="tab" data-page="models">Models</button>
+  <button class="tab" data-page="gpu">GPU</button>
+  <button class="tab" data-page="clients">Clients</button>
+  <button class="tab" data-page="logs">Logs</button>
+  <button class="tab" data-page="settings">Settings</button>
+</nav>
+
+<main>
+  <!-- ============ DASHBOARD ============ -->
+  <section id="page-dashboard" class="page active">
+    <div class="cards">
+      <div class="card"><div class="card-label">Активные запросы</div><div class="card-value" id="dash-active">0</div></div>
+      <div class="card"><div class="card-label">Запросов сегодня</div><div class="card-value" id="dash-total">0</div></div>
+      <div class="card"><div class="card-label">Средняя генерация</div><div class="card-value" id="dash-gen-speed">—</div></div>
+      <div class="card"><div class="card-label">Обработка контекста</div><div class="card-value" id="dash-prompt-speed">—</div></div>
+      <div class="card"><div class="card-label">Среднее время ответа</div><div class="card-value" id="dash-response-time">—</div></div>
+      <div class="card"><div class="card-label">GPU</div><div class="card-value" id="dash-gpu">—</div></div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-box"><h3>Скорость генерации (tok/s)</h3><canvas id="chart-speed"></canvas></div>
+      <div class="chart-box"><h3>Загрузка GPU (%)</h3><canvas id="chart-gpu"></canvas></div>
+      <div class="chart-box"><h3>Использование VRAM (ГБ)</h3><canvas id="chart-vram"></canvas></div>
+      <div class="chart-box"><h3>Запросы за последние 24 ч</h3><canvas id="chart-requests"></canvas></div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <h3>Загруженные модели (Ollama /api/ps)</h3>
+        <table class="table" id="table-loaded-models">
+          <thead><tr><th>Модель</th><th>Размер (VRAM)</th><th>Загрузка CPU</th><th>Осталось в памяти</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Последние запросы</h3>
+        <table class="table" id="table-recent">
+          <thead><tr><th>Время</th><th>Клиент</th><th>Модель</th><th>Статус</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REQUESTS ============ -->
+  <section id="page-requests" class="page">
+    <div class="toolbar">
+      <input type="text" id="req-search" placeholder="Поиск (модель, клиент, IP)">
+      <select id="req-status"><option value="">Статус: все</option><option>COMPLETED</option><option>ERROR</option><option>CANCELLED</option><option>INTERRUPTED</option></select>
+      <select id="req-model"><option value="">Модель: все</option></select>
+      <button class="btn" id="btn-refresh-req">Обновить</button>
+      <a class="btn" href="/api/requests/export/CSV">CSV</a>
+      <a class="btn" href="/api/requests/export/JSON">JSON</a>
+    </div>
+    <table class="table" id="table-requests">
+      <thead><tr><th>Время</th><th>Клиент</th><th>Модель</th><th>Endpoint</th><th>Вход</th><th>Выход</th><th>tok/s</th><th>Длительность</th><th>Статус</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="pager">
+      <button class="btn" id="req-prev">← Пред</button>
+      <span id="req-page-info">Стр. 1</span>
+      <button class="btn" id="req-next">След →</button>
+    </div>
+
+    <!-- Detail modal -->
+    <div class="modal" id="modal-request" hidden onclick="if(event.target===this)closeRequestModal()">
+      <div class="modal-content">
+        <h3>Детали запроса</h3>
+        <pre id="modal-request-body"></pre>
+        <button class="btn" onclick="closeRequestModal()">Закрыть</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODELS ============ -->
+  <section id="page-models" class="page">
+    <div class="toolbar">
+      <select id="cmp-model-a"></select>
+      <select id="cmp-model-b"></select>
+      <button class="btn" id="btn-compare">Сравнить</button>
+    </div>
+    <div id="compare-result" class="panel"></div>
+    <table class="table" id="table-models">
+      <thead><tr><th>Модель</th><th>Запросы</th><th>Ср. генерация (tok/s)</th><th>Ср. обработка (tok/s)</th><th>Ср. время ответа</th><th>Входные токены</th><th>Выходные токены</th><th>Ошибки</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- ============ GPU ============ -->
+  <section id="page-gpu" class="page">
+    <div id="gpu-cards" class="cards"></div>
+    <div class="charts-grid">
+      <div class="chart-box"><h3>GPU Utilization (%)</h3><canvas id="chart-gpu-util"></canvas></div>
+      <div class="chart-box"><h3>VRAM Usage (ГБ)</h3><canvas id="chart-gpu-vram"></canvas></div>
+      <div class="chart-box"><h3>Температура (°C)</h3><canvas id="chart-gpu-temp"></canvas></div>
+      <div class="chart-box"><h3>Потребление (Вт)</h3><canvas id="chart-gpu-power"></canvas></div>
+    </div>
+  </section>
+
+  <!-- ============ CLIENTS ============ -->
+  <section id="page-clients" class="page">
+    <table class="table" id="table-clients">
+      <thead><tr><th>IP</th><th>Клиент</th><th>User-Agent</th><th>Запросы</th><th>Последняя активность</th><th>Модели</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- ============ LOGS ============ -->
+  <section id="page-logs" class="page">
+    <div class="toolbar">
+      <select id="log-level"><option value="">Уровень: все</option><option>DEBUG</option><option>INFO</option><option>WARNING</option><option>ERROR</option></select>
+      <button class="btn" id="btn-refresh-logs">Обновить</button>
+    </div>
+    <div id="log-list" class="log-list"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="page-settings" class="page">
+    <div class="panel">
+      <h3>Настройки сервера</h3>
+      <p class="hint">Настройки загружаются из config.yaml. Изменения требуют перезапуска приложения.</p>
+      <pre id="settings-config"></pre>
+    </div>
+  </section>
+</main>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
