@@ -72,9 +72,9 @@ app/
 tests/                      # Автотесты (pytest)
 ```
 
-## ТЗ
+Поддержи разработчика https://kolektiv2.ru/lmstudio/donate.html?app=scidata
 
-Полное техническое задание: [`promt.md`](promt.md). Развёрнутое описание реализованного: [`read.md`](read.md).
+
 
 ## Лицензия
 
